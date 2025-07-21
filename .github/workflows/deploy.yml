@@ -17,7 +17,7 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_KEY }}" | base64 -d > ~/.ssh/lightsail
+          echo "${{ secrets.LIGHTSAIL_KEY }}" > ~/.ssh/lightsail
           chmod 600 ~/.ssh/lightsail
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/lightsail
