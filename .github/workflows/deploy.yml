@@ -18,8 +18,12 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.LIGHTSAIL_KEY }}" > ~/.ssh/lightsail
         chmod 600 ~/.ssh/lightsail
-        echo -e "Host lightsail\n  HostName dinelynk.com\n  User ubuntu\n  IdentityFile ~/.ssh/lightsail\n  StrictHostKeyChecking no" >> ~/.ssh/config
+        echo -e "Host lightsail\n  HostName YOUR_PUBLIC_IP\n  User ubuntu\n  IdentityFile ~/.ssh/lightsail\n  StrictHostKeyChecking no" >> ~/.ssh/config
 
-    - name: SSH into Lightsail and Pull Repo
+    - name: Force Pull Latest Code from GitHub on Lightsail
       run: |
-        ssh lightsail "cd ~/workflow-wiz-ai && git pull --rebase origin main"
+        ssh lightsail "
+          cd ~/workflow-wiz-ai && \
+          git fetch origin main && \
+          git reset --hard origin/main
+        "
