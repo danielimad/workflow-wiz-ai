@@ -10,20 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Setup SSH Key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.LIGHTSAIL_KEY }}" > ~/.ssh/lightsail
-        chmod 600 ~/.ssh/lightsail
-        echo -e "Host lightsail\n  HostName dinelynk.com\n  User ubuntu\n  IdentityFile ~/.ssh/lightsail\n  StrictHostKeyChecking no" >> ~/.ssh/config
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/lightsail
+          chmod 600 ~/.ssh/lightsail
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/lightsail
 
-    - name: Force Pull Latest Code from GitHub on Lightsail
-      run: |
-        ssh lightsail "
-          cd ~/workflow-wiz-ai && \
-          git fetch origin main && \
-          git reset --hard origin/main
-        "
+      - name: SSH into Lightsail and Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/lightsail ubuntu@dinelynk.com << 'EOF'
+            cd ~/workflow-wiz-ai
+
+            # Optional: Reset any local changes and pull latest code
+            git reset --hard
+            git pull origin main
+
+            # Build project
+            npm install
+            npm run build
+
+            # Restart app with PM2 (change name as needed)
+            pm2 delete workflow-ai || true
+            pm2 start "npm run preview" --name workflow-ai
+
+            # Optional: Save PM2 process list and enable on boot
+            pm2 save
+            pm2 startup
+          EOF
