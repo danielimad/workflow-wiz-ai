@@ -18,7 +18,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.LIGHTSAIL_KEY }}" > ~/.ssh/lightsail
         chmod 600 ~/.ssh/lightsail
-        echo -e "Host lightsail\n  HostName 13.201.138.164\n  User ubuntu\n  IdentityFile ~/.ssh/lightsail\n  StrictHostKeyChecking no" >> ~/.ssh/config
+        echo -e "Host lightsail\n  HostName dinelynk.com\n  User ubuntu\n  IdentityFile ~/.ssh/lightsail\n  StrictHostKeyChecking no" >> ~/.ssh/config
 
     - name: SSH into Lightsail and Pull Repo
       run: |
