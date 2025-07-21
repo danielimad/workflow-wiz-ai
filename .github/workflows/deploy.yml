@@ -20,10 +20,11 @@ jobs:
         chmod 600 ~/.ssh/lightsail
         echo -e "Host lightsail\n  HostName dinelynk.com\n  User ubuntu\n  IdentityFile ~/.ssh/lightsail\n  StrictHostKeyChecking no" >> ~/.ssh/config
 
-    - name: Force Pull Latest Code from GitHub on Lightsail
+    - name: Force Pull Latest Code from GitHub on Lightsail and Reboot
       run: |
         ssh lightsail "
           cd ~/workflow-wiz-ai && \
           git fetch origin main && \
-          git reset --hard origin/main
+          git reset --hard origin/main && \
+          sudo reboot
         "
