@@ -26,5 +26,8 @@ jobs:
           cd ~/workflow-wiz-ai && \
           git fetch origin main && \
           git reset --hard origin/main && \
+          pm2 delete workflow-wiz || true && \
+          pm2 start ./start-serve.sh --name workflow-wiz && \
+          pm2 save && \
           (sleep 10 && sudo reboot) &
         "
