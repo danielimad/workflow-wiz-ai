@@ -7,17 +7,17 @@ interface HeroSectionProps {
 
 export function HeroSection({ onGetStarted }: HeroSectionProps) {
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background gradient */}
       <div className="absolute inset-0 gradient-subtle opacity-50" />
       
       {/* Floating elements */}
-      <div className="absolute top-20 left-10 animate-float">
+      <div className="absolute top-32 left-10 animate-float">
         <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
           <Bot className="w-8 h-8 text-primary" />
         </div>
       </div>
-      <div className="absolute top-32 right-20 animate-float" style={{ animationDelay: '1s' }}>
+      <div className="absolute top-44 right-20 animate-float" style={{ animationDelay: '1s' }}>
         <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
           <Sparkles className="w-6 h-6 text-accent" />
         </div>

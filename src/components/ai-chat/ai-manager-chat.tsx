@@ -31,12 +31,52 @@ export interface BusinessAnalysis {
   automationOpportunities: string[];
 }
 
-const INITIAL_QUESTIONS = [
-  "What industry is your business in?",
-  "How many employees do you have?",
-  "What are your main services or products?",
-  "What departments exist in your company?",
-  "What are your biggest operational challenges?"
+const INTERVIEW_FLOW = [
+  {
+    question: "What industry is your business in?",
+    followUps: ["Tell me more about your target market", "Who are your main competitors?"]
+  },
+  {
+    question: "How many employees do you have and how are they structured?",
+    followUps: ["What departments do you have?", "What are the main roles in each department?"]
+  },
+  {
+    question: "What are your main services or products?",
+    followUps: ["What's your most profitable service?", "How do you price your offerings?"]
+  },
+  {
+    question: "Walk me through your typical customer journey",
+    followUps: ["How do customers first find you?", "What's your sales process like?"]
+  },
+  {
+    question: "What are your biggest operational challenges?",
+    followUps: ["Which tasks take the most time?", "What processes are most prone to errors?"]
+  },
+  {
+    question: "What are your main business goals for the next 6-12 months?",
+    followUps: ["What would success look like?", "What's holding you back from achieving these goals?"]
+  },
+  {
+    question: "How do you currently handle customer communications?",
+    followUps: ["What tools do you use?", "What are the pain points in customer service?"]
+  },
+  {
+    question: "Describe your current workflow for [specific process based on their industry]",
+    followUps: ["How long does this typically take?", "What could be automated here?"]
+  }
+];
+
+const QUICK_RESPONSES = [
+  "Small business (1-10 employees)",
+  "Medium business (10-50 employees)", 
+  "Large business (50+ employees)",
+  "Service-based business",
+  "Product-based business",
+  "E-commerce",
+  "Consulting",
+  "Healthcare",
+  "Education",
+  "Manufacturing"
 ];
 
 export function AIManagerChat({ userData, onAnalysisComplete }: AIManagerChatProps) {
@@ -52,6 +92,8 @@ export function AIManagerChat({ userData, onAnalysisComplete }: AIManagerChatPro
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [collectedData, setCollectedData] = useState<any>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -78,7 +120,7 @@ export function AIManagerChat({ userData, onAnalysisComplete }: AIManagerChatPro
 
     // Simulate AI response with intelligent follow-up questions
     setTimeout(() => {
-      const aiResponse = generateAIResponse(userMessage.content, messages.length);
+      const aiResponse = generateAIResponse(userMessage.content, currentQuestionIndex);
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -88,48 +130,95 @@ export function AIManagerChat({ userData, onAnalysisComplete }: AIManagerChatPro
 
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
-      setAnalysisProgress(Math.min(100, (messages.length / 10) * 100));
+      
+      // Update progress and move to next question
+      const progress = Math.min(100, ((currentQuestionIndex + 1) / INTERVIEW_FLOW.length) * 100);
+      setAnalysisProgress(progress);
+      
+      // Store user response
+      if (currentQuestionIndex < INTERVIEW_FLOW.length) {
+        setCollectedData(prev => ({
+          ...prev,
+          [`question_${currentQuestionIndex}`]: userMessage.content
+        }));
+        setCurrentQuestionIndex(prev => prev + 1);
+      }
     }, 1500);
   };
 
-  const generateAIResponse = (userInput: string, messageCount: number): string => {
+  const generateAIResponse = (userInput: string, questionIndex: number): string => {
     // This would integrate with OpenAI GPT-4 in a real implementation
-    const responses = [
-      "Excellent! Now tell me about your team structure - how many employees do you have and how are they organized into departments?",
-      "That's very helpful! What are the main services or products that your company offers to customers?",
-      "Great insights! Can you walk me through your typical customer journey - from first contact to completion?",
-      "Perfect! What are the most time-consuming manual tasks that your team handles daily?",
-      "Wonderful! Based on what you've shared, I can see several automation opportunities. What are your main business goals for the next 6-12 months?",
-      `Thank you for all that information! I now have a comprehensive understanding of ${userData.company}. Let me analyze this and create your custom workflow dashboard and AI agents. This analysis will help me generate the perfect automation strategy for your business.`
-    ];
-
-    if (messageCount >= 12) {
+    
+    if (questionIndex >= INTERVIEW_FLOW.length) {
       // Trigger analysis completion
       setTimeout(() => {
         const mockAnalysis: BusinessAnalysis = {
-          departments: ["Sales", "Marketing", "Customer Service", "Operations"],
-          services: ["Consulting", "Software Development", "Support"],
-          teamSize: 15,
-          workflows: [
-            {
-              name: "Lead Qualification",
-              steps: ["Initial Contact", "Needs Assessment", "Proposal", "Follow-up"],
-              department: "Sales"
-            },
-            {
-              name: "Customer Onboarding",
-              steps: ["Welcome Email", "Account Setup", "Training", "First Check-in"],
-              department: "Customer Service"
-            }
-          ],
-          goals: ["Increase efficiency", "Improve customer satisfaction", "Scale operations"],
-          automationOpportunities: ["Lead qualification", "Customer support", "Email marketing"]
+          departments: extractDepartments(collectedData),
+          services: extractServices(collectedData),
+          teamSize: extractTeamSize(collectedData),
+          workflows: generateWorkflows(collectedData),
+          goals: extractGoals(collectedData),
+          automationOpportunities: identifyAutomationOpportunities(collectedData)
         };
         onAnalysisComplete?.(mockAnalysis);
       }, 2000);
+      
+      return `Thank you for all that detailed information! I now have a comprehensive understanding of ${userData.company}. Let me analyze this and create your custom workflow dashboard and AI agents. This analysis will help me generate the perfect automation strategy for your business.`;
     }
+    
+    if (questionIndex < INTERVIEW_FLOW.length) {
+      const responses = [
+        `Great! ${INTERVIEW_FLOW[questionIndex].question}`,
+        `Perfect, that helps me understand your structure. ${INTERVIEW_FLOW[questionIndex].question}`,
+        `Excellent insights! ${INTERVIEW_FLOW[questionIndex].question}`,
+        `That's very valuable information. ${INTERVIEW_FLOW[questionIndex].question}`,
+      ];
+      
+      return responses[questionIndex % responses.length] || INTERVIEW_FLOW[questionIndex].question;
+    }
+    
+    return "Thank you for that information. Let me ask you another question to better understand your business.";
+  };
 
-    return responses[Math.min(messageCount / 2, responses.length - 1)];
+  const extractDepartments = (data: any): string[] => {
+    // In a real implementation, this would use NLP to extract departments
+    return ["Sales", "Marketing", "Customer Service", "Operations", "HR"];
+  };
+
+  const extractServices = (data: any): string[] => {
+    return ["Consulting", "Software Development", "Support", "Training"];
+  };
+
+  const extractTeamSize = (data: any): number => {
+    return 15; // Would be extracted from user responses
+  };
+
+  const generateWorkflows = (data: any): any[] => {
+    return [
+      {
+        name: "Lead Qualification",
+        steps: ["Initial Contact", "Needs Assessment", "Proposal", "Follow-up"],
+        department: "Sales"
+      },
+      {
+        name: "Customer Onboarding", 
+        steps: ["Welcome Email", "Account Setup", "Training", "First Check-in"],
+        department: "Customer Service"
+      },
+      {
+        name: "Content Creation",
+        steps: ["Research", "Draft", "Review", "Publish", "Promote"],
+        department: "Marketing"
+      }
+    ];
+  };
+
+  const extractGoals = (data: any): string[] => {
+    return ["Increase efficiency", "Improve customer satisfaction", "Scale operations", "Reduce costs"];
+  };
+
+  const identifyAutomationOpportunities = (data: any): string[] => {
+    return ["Lead qualification", "Customer support", "Email marketing", "Scheduling", "Report generation"];
   };
 
   const handleQuickResponse = (question: string) => {
@@ -227,19 +316,22 @@ export function AIManagerChat({ userData, onAnalysisComplete }: AIManagerChatPro
           </div>
 
           {/* Quick Responses */}
-          {messages.length < 6 && (
+          {currentQuestionIndex < INTERVIEW_FLOW.length && (
             <div className="px-6 py-3 border-t bg-muted/30">
               <p className="text-xs text-muted-foreground mb-2">Quick responses:</p>
               <div className="flex flex-wrap gap-2">
-                {INITIAL_QUESTIONS.slice(0, 3).map((question, index) => (
+                {QUICK_RESPONSES.slice(0, 5).map((response, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
                     className="text-xs h-8"
-                    onClick={() => handleQuickResponse(question)}
+                    onClick={() => {
+                      setInputValue(response);
+                      setTimeout(() => handleSendMessage(), 100);
+                    }}
                   >
-                    {question}
+                    {response}
                   </Button>
                 ))}
               </div>

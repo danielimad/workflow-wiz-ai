@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { HeroSection } from "@/components/ui/hero-section";
+import { Header } from "@/components/landing/header";
+import { Footer } from "@/components/landing/footer";
+import { LandingSections } from "@/components/landing/landing-sections";
 import { OnboardingForm, UserData } from "@/components/auth/onboarding-form";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { AIManagerChat, BusinessAnalysis } from "@/components/ai-chat/ai-manager-chat";
 import { WorkflowVisualization } from "@/components/workflow/workflow-visualization";
+import { AIAgentsManager } from "@/components/agents/ai-agents-manager";
+import { IntegrationsManager } from "@/components/integrations/integrations-manager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Zap, MessageSquare, TestTube } from "lucide-react";
 
@@ -70,27 +75,7 @@ const Index = () => {
         );
 
       case "agents":
-        return (
-          <div className="p-6">
-            <Card className="shadow-ai">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bot className="w-5 h-5" />
-                  AI Agents
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 rounded-full gradient-primary mx-auto mb-4 flex items-center justify-center">
-                  <Zap className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">AI Agents Coming Soon</h3>
-                <p className="text-muted-foreground">
-                  Based on your workflow analysis, we'll generate custom AI agents for automation
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        );
+        return <AIAgentsManager analysis={businessAnalysis} />;
 
       case "testing":
         return (
@@ -115,6 +100,9 @@ const Index = () => {
           </div>
         );
 
+      case "integrations":
+        return <IntegrationsManager />;
+
       default:
         return (
           <div className="p-6">
@@ -130,7 +118,14 @@ const Index = () => {
   };
 
   if (appState === "landing") {
-    return <HeroSection onGetStarted={handleGetStarted} />;
+    return (
+      <div className="min-h-screen">
+        <Header onGetStarted={handleGetStarted} />
+        <HeroSection onGetStarted={handleGetStarted} />
+        <LandingSections onGetStarted={handleGetStarted} />
+        <Footer />
+      </div>
+    );
   }
 
   if (appState === "onboarding") {
