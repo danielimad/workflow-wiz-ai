@@ -27,3 +27,6 @@ jobs:
           git fetch origin main && \
           git reset --hard origin/main
         "
+    - name: Reboot Server
+      run: |
+        sudo reboot
