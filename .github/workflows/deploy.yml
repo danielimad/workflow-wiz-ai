@@ -1,0 +1,25 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LIGHTSAIL_KEY }}" > ~/.ssh/lightsail
+        chmod 600 ~/.ssh/lightsail
+        echo -e "Host lightsail\n  HostName YOUR_PUBLIC_IP\n  User ubuntu\n  IdentityFile ~/.ssh/lightsail\n  StrictHostKeyChecking no" >> ~/.ssh/config
+
+    - name: SSH into Lightsail and Pull Repo
+      run: |
+        ssh lightsail "cd ~/workflow-wiz-ai && git pull origin main"
