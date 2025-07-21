@@ -22,4 +22,4 @@ jobs:
 
     - name: SSH into Lightsail and Pull Repo
       run: |
-        ssh lightsail "cd ~/workflow-wiz-ai && git pull origin main"
+        ssh lightsail "cd ~/workflow-wiz-ai && git pull --rebase origin main"
