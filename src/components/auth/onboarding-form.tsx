@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface OnboardingFormProps {
   onComplete: (userData: UserData) => void;
@@ -23,16 +25,58 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
   });
   
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    onComplete(userData);
-    setIsLoading(false);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: 'temp123!', // Temporary password for MVP
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            name: userData.name,
+            company: userData.company
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      // Create user profile
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: data.user.id,
+              name: userData.name,
+              email: userData.email,
+              company: userData.company
+            }
+          ]);
+
+        if (profileError) console.error('Profile creation error:', profileError);
+      }
+
+      toast({
+        title: "Account Created!",
+        description: "Welcome to AI Manager. Let's start building your AI agents.",
+      });
+
+      onComplete(userData);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create account",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const isValid = userData.name && userData.email && userData.company;
