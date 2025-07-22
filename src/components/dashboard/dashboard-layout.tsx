@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Bot, Menu, Settings, LogOut, Brain, Workflow, MessageSquare, TestTube } from "lucide-react";
+import { Bot, Menu, Settings, LogOut, Brain, Workflow, MessageSquare, TestTube, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { UserData } from "@/components/auth/onboarding-form";
@@ -17,6 +17,7 @@ const navigationItems = [
   { id: "agents", label: "AI Agents", icon: Bot, description: "Manage your AI agents" },
   { id: "testing", label: "Testing", icon: TestTube, description: "Test your AI agents" },
   { id: "integrations", label: "Integrations", icon: MessageSquare, description: "Connect external services" },
+  { id: "mindmap", label: "Mind Map", icon: Network, description: "Visual overview of your AI ecosystem" },
 ];
 
 export function DashboardLayout({ children, userData, activeSection = "chat", onSectionChange }: DashboardLayoutProps) {
