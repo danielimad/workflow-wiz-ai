@@ -52,7 +52,7 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
           .from('profiles')
           .insert([
             {
-              id: data.user.id,
+              user_id: data.user.id,
               name: userData.name,
               email: userData.email,
               company: userData.company
