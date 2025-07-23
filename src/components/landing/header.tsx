@@ -12,9 +12,16 @@ export function Header({ onGetStarted }: HeaderProps) {
   const navItems = [
     { label: "Features", href: "#features" },
     { label: "Use Cases", href: "#use-cases" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "About", href: "#about" },
+    { label: "Results", href: "#results" },
+    { label: "Testimonials", href: "#testimonials" },
   ];
+
+  const handleNavClick = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <header className="fixed top-0 w-full bg-card/80 backdrop-blur-sm border-b z-50">
@@ -34,13 +41,13 @@ export function Header({ onGetStarted }: HeaderProps) {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <a
+              <button
                 key={item.label}
-                href={item.href}
+                onClick={() => handleNavClick(item.href)}
                 className="text-muted-foreground hover:text-foreground transition-colors story-link"
               >
                 {item.label}
-              </a>
+              </button>
             ))}
           </nav>
 
@@ -71,14 +78,16 @@ export function Header({ onGetStarted }: HeaderProps) {
           <div className="md:hidden mt-4 pb-4 border-t">
             <nav className="flex flex-col gap-4 pt-4">
               {navItems.map((item) => (
-                <a
+                <button
                   key={item.label}
-                  href={item.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => {
+                    handleNavClick(item.href);
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-muted-foreground hover:text-foreground transition-colors py-2 text-left"
                 >
                   {item.label}
-                </a>
+                </button>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t">
                 <Button variant="ghost" size="sm">Sign In</Button>

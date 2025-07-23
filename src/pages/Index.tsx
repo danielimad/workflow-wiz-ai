@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HeroSection } from "@/components/ui/hero-section";
 import { Header } from "@/components/landing/header";
 import { Footer } from "@/components/landing/footer";
@@ -9,24 +9,26 @@ import { AIManagerChat, BusinessAnalysis } from "@/components/ai-chat/ai-manager
 import { WorkflowVisualization } from "@/components/workflow/workflow-visualization";
 import { AIAgentsManager } from "@/components/agents/ai-agents-manager";
 import { IntegrationsManager } from "@/components/integrations/integrations-manager";
+import { AITestingLab } from "@/components/testing/ai-testing-lab";
+import { MindMap } from "@/components/dashboard/mind-map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Zap, MessageSquare, TestTube } from "lucide-react";
-
-type AppState = "landing" | "onboarding" | "dashboard";
+import { useAuth } from "@/hooks/use-auth";
 
 const Index = () => {
-  const [appState, setAppState] = useState<AppState>("landing");
+  const { user, loading } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeSection, setActiveSection] = useState("chat");
   const [businessAnalysis, setBusinessAnalysis] = useState<BusinessAnalysis | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const handleGetStarted = () => {
-    setAppState("onboarding");
+    setShowOnboarding(true);
   };
 
   const handleOnboardingComplete = (data: UserData) => {
     setUserData(data);
-    setAppState("dashboard");
+    setShowOnboarding(false);
   };
 
   const handleAnalysisComplete = (analysis: BusinessAnalysis) => {
@@ -78,30 +80,13 @@ const Index = () => {
         return <AIAgentsManager analysis={businessAnalysis} />;
 
       case "testing":
-        return (
-          <div className="p-6">
-            <Card className="shadow-ai">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TestTube className="w-5 h-5" />
-                  Testing Environment
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
-                  <TestTube className="w-8 h-8 text-accent" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Agent Testing Lab</h3>
-                <p className="text-muted-foreground">
-                  Test your AI agents in realistic scenarios before deployment
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        );
+        return <AITestingLab />;
 
       case "integrations":
         return <IntegrationsManager />;
+
+      case "mindmap":
+        return <MindMap onNavigate={setActiveSection} />;
 
       default:
         return (
@@ -117,22 +102,34 @@ const Index = () => {
     }
   };
 
-  if (appState === "landing") {
+  if (loading) {
     return (
-      <div className="min-h-screen">
-        <Header onGetStarted={handleGetStarted} />
-        <HeroSection onGetStarted={handleGetStarted} />
-        <LandingSections onGetStarted={handleGetStarted} />
-        <Footer />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Bot className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading AI Manager...</p>
+        </div>
       </div>
     );
   }
 
-  if (appState === "onboarding") {
-    return <OnboardingForm onComplete={handleOnboardingComplete} />;
+  if (!user) {
+    return (
+      <>
+        <div className="min-h-screen">
+          <Header onGetStarted={handleGetStarted} />
+          <HeroSection onGetStarted={handleGetStarted} />
+          <LandingSections onGetStarted={handleGetStarted} />
+          <Footer />
+        </div>
+        {showOnboarding && (
+          <OnboardingForm onComplete={handleOnboardingComplete} />
+        )}
+      </>
+    );
   }
 
-  if (appState === "dashboard" && userData) {
+  if (user && userData) {
     return (
       <DashboardLayout 
         userData={userData} 
@@ -144,7 +141,7 @@ const Index = () => {
     );
   }
 
-  return null;
+  return <OnboardingForm onComplete={handleOnboardingComplete} />;
 };
 
 export default Index;
