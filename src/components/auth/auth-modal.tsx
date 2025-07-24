@@ -50,13 +50,17 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
 
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/?confirmed=true`;
       
       const { data, error } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupPassword,
         options: {
-          emailRedirectTo: redirectUrl
+          emailRedirectTo: redirectUrl,
+          data: {
+            name: signupData.name,
+            company: signupData.company
+          }
         }
       });
 
@@ -65,8 +69,12 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
         return;
       }
 
-      if (data.user) {
-        // Create profile
+      if (data.user && !data.session) {
+        // User created but needs email confirmation
+        toast.success("Please check your email to confirm your account");
+        onClose();
+      } else if (data.user && data.session) {
+        // User created and auto-confirmed
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -78,8 +86,6 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
-          toast.error("Failed to create profile");
-          return;
         }
 
         toast.success("Account created successfully!");
@@ -113,7 +119,7 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
         return;
       }
 
-      if (data.user) {
+      if (data.user && data.session) {
         // Get user profile
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -136,6 +142,32 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
       }
     } catch (error) {
       console.error('Signin error:', error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!signinData.email) {
+      toast.error("Please enter your email address first");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(signinData.email, {
+        redirectTo: `${window.location.origin}/?reset=true`
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success("Password reset email sent!");
+    } catch (error) {
+      console.error('Reset password error:', error);
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
@@ -276,6 +308,17 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
               >
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-sm text-primary hover:underline"
+                  disabled={isLoading}
+                >
+                  Forgot your password?
+                </button>
+              </div>
             </form>
           </TabsContent>
         </Tabs>

@@ -4,6 +4,7 @@ import { Header } from "@/components/landing/header";
 import { Footer } from "@/components/landing/footer";
 import { LandingSections } from "@/components/landing/landing-sections";
 import { AuthModal, UserData } from "@/components/auth/auth-modal";
+import { toast } from "sonner";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { AIManagerChat, BusinessAnalysis } from "@/components/ai-chat/ai-manager-chat";
 import { WorkflowVisualization } from "@/components/workflow/workflow-visualization";
@@ -14,6 +15,7 @@ import { MindMap } from "@/components/dashboard/mind-map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Zap, MessageSquare, TestTube } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -22,6 +24,55 @@ const Index = () => {
   const [businessAnalysis, setBusinessAnalysis] = useState<BusinessAnalysis | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"signup" | "signin">("signup");
+
+  // Handle email confirmation and password reset redirects
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('confirmed') === 'true') {
+      // Handle email confirmation - user will be auto-signed in via auth state change
+      toast.success("Email confirmed! Welcome to AI Manager!");
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/');
+    }
+    
+    if (urlParams.get('reset') === 'true') {
+      toast.info("Please check your email for password reset instructions");
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/');
+    }
+  }, []);
+
+  // Load user profile when user exists but userData doesn't
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user && !userData) {
+        try {
+          const { data: profile, error } = await supabase.auth.getUser();
+          if (profile.user && !error) {
+            // Try to get profile from database
+            const { data: dbProfile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', profile.user.id)
+              .single();
+            
+            if (dbProfile) {
+              setUserData({
+                name: dbProfile.name,
+                email: dbProfile.email,
+                company: dbProfile.company
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error loading user profile:', error);
+        }
+      }
+    };
+
+    loadUserProfile();
+  }, [user, userData]);
 
   const handleGetStarted = () => {
     setAuthModalTab("signup");
