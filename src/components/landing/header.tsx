@@ -4,25 +4,17 @@ import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   onGetStarted: () => void;
-  onSignIn: () => void;
 }
 
-export function Header({ onGetStarted, onSignIn }: HeaderProps) {
+export function Header({ onGetStarted }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
     { label: "Features", href: "#features" },
     { label: "Use Cases", href: "#use-cases" },
-    { label: "Results", href: "#results" },
-    { label: "Testimonials", href: "#testimonials" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "About", href: "#about" },
   ];
-
-  const handleNavClick = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <header className="fixed top-0 w-full bg-card/80 backdrop-blur-sm border-b z-50">
@@ -42,19 +34,19 @@ export function Header({ onGetStarted, onSignIn }: HeaderProps) {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <button
+              <a
                 key={item.label}
-                onClick={() => handleNavClick(item.href)}
+                href={item.href}
                 className="text-muted-foreground hover:text-foreground transition-colors story-link"
               >
                 {item.label}
-              </button>
+              </a>
             ))}
           </nav>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" onClick={onSignIn}>Sign In</Button>
+            <Button variant="ghost">Sign In</Button>
             <Button 
               className="gradient-primary shadow-ai"
               onClick={onGetStarted}
@@ -79,19 +71,17 @@ export function Header({ onGetStarted, onSignIn }: HeaderProps) {
           <div className="md:hidden mt-4 pb-4 border-t">
             <nav className="flex flex-col gap-4 pt-4">
               {navItems.map((item) => (
-                <button
+                <a
                   key={item.label}
-                  onClick={() => {
-                    handleNavClick(item.href);
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-muted-foreground hover:text-foreground transition-colors py-2 text-left"
+                  href={item.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors py-2"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
-                </button>
+                </a>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t">
-                <Button variant="ghost" size="sm" onClick={() => { onSignIn(); setIsMenuOpen(false); }}>Sign In</Button>
+                <Button variant="ghost" size="sm">Sign In</Button>
                 <Button 
                   size="sm"
                   className="gradient-primary"

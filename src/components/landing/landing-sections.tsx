@@ -108,7 +108,7 @@ export function LandingSections({ onGetStarted }: LandingSectionsProps) {
   return (
     <div className="space-y-20 py-20">
       {/* Problem & Solution Section */}
-      <section id="features" className="max-w-6xl mx-auto px-6">
+      <section className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-16">
           <Badge className="mb-4">The Challenge</Badge>
           <h2 className="text-4xl font-bold mb-6">
@@ -163,7 +163,7 @@ export function LandingSections({ onGetStarted }: LandingSectionsProps) {
       </section>
 
       {/* Use Cases Section */}
-      <section id="use-cases" className="max-w-6xl mx-auto px-6">
+      <section className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-16">
           <Badge className="mb-4">Use Cases</Badge>
           <h2 className="text-4xl font-bold mb-6">
@@ -244,7 +244,7 @@ export function LandingSections({ onGetStarted }: LandingSectionsProps) {
       </section>
 
       {/* Stats Section */}
-      <section id="results" className="bg-gradient-subtle py-16">
+      <section className="bg-gradient-subtle py-16">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Proven Results</h2>
@@ -267,7 +267,7 @@ export function LandingSections({ onGetStarted }: LandingSectionsProps) {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="max-w-6xl mx-auto px-6">
+      <section className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-16">
           <Badge className="mb-4">Testimonials</Badge>
           <h2 className="text-4xl font-bold mb-6">
