@@ -50,7 +50,7 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
 
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/?confirmed=true`;
+      const redirectUrl = 'https://dinelynk.com/?confirmed=true';
       
       const { data, error } = await supabase.auth.signUp({
         email: signupData.email,
@@ -157,7 +157,7 @@ export function AuthModal({ isOpen, onClose, onComplete, defaultTab = "signup" }
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(signinData.email, {
-        redirectTo: `${window.location.origin}/?reset=true`
+        redirectTo: 'https://dinelynk.com/?reset=true'
       });
 
       if (error) {
