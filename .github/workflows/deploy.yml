@@ -19,7 +19,7 @@ jobs:
         chmod 600 ~/.ssh/lightsail
         cat <<'CONF' >> ~/.ssh/config
         Host lightsail
-          HostName dinelynk.com
+          HostName ai.redzen.cloud
           User ubuntu
           IdentityFile ~/.ssh/lightsail
           StrictHostKeyChecking no
