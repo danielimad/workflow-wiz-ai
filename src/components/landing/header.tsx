@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   onGetStarted: () => void;
+  onSignIn: () => void;
 }
 
-export function Header({ onGetStarted }: HeaderProps) {
+export function Header({ onGetStarted, onSignIn }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
@@ -53,7 +54,7 @@ export function Header({ onGetStarted }: HeaderProps) {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost">Sign In</Button>
+            <Button variant="ghost" onClick={onSignIn}>Sign In</Button>
             <Button 
               className="gradient-primary shadow-ai"
               onClick={onGetStarted}
@@ -90,7 +91,7 @@ export function Header({ onGetStarted }: HeaderProps) {
                 </button>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t">
-                <Button variant="ghost" size="sm">Sign In</Button>
+                <Button variant="ghost" size="sm" onClick={() => { onSignIn(); setIsMenuOpen(false); }}>Sign In</Button>
                 <Button 
                   size="sm"
                   className="gradient-primary"

@@ -3,7 +3,7 @@ import { HeroSection } from "@/components/ui/hero-section";
 import { Header } from "@/components/landing/header";
 import { Footer } from "@/components/landing/footer";
 import { LandingSections } from "@/components/landing/landing-sections";
-import { OnboardingForm, UserData } from "@/components/auth/onboarding-form";
+import { AuthModal, UserData } from "@/components/auth/auth-modal";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { AIManagerChat, BusinessAnalysis } from "@/components/ai-chat/ai-manager-chat";
 import { WorkflowVisualization } from "@/components/workflow/workflow-visualization";
@@ -20,15 +20,22 @@ const Index = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeSection, setActiveSection] = useState("chat");
   const [businessAnalysis, setBusinessAnalysis] = useState<BusinessAnalysis | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<"signup" | "signin">("signup");
 
   const handleGetStarted = () => {
-    setShowOnboarding(true);
+    setAuthModalTab("signup");
+    setShowAuthModal(true);
   };
 
-  const handleOnboardingComplete = (data: UserData) => {
+  const handleSignIn = () => {
+    setAuthModalTab("signin");
+    setShowAuthModal(true);
+  };
+
+  const handleAuthComplete = (data: UserData) => {
     setUserData(data);
-    setShowOnboarding(false);
+    setShowAuthModal(false);
   };
 
   const handleAnalysisComplete = (analysis: BusinessAnalysis) => {
@@ -117,14 +124,17 @@ const Index = () => {
     return (
       <>
         <div className="min-h-screen">
-          <Header onGetStarted={handleGetStarted} />
+          <Header onGetStarted={handleGetStarted} onSignIn={handleSignIn} />
           <HeroSection onGetStarted={handleGetStarted} />
           <LandingSections onGetStarted={handleGetStarted} />
           <Footer />
         </div>
-        {showOnboarding && (
-          <OnboardingForm onComplete={handleOnboardingComplete} />
-        )}
+        <AuthModal 
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onComplete={handleAuthComplete}
+          defaultTab={authModalTab}
+        />
       </>
     );
   }
@@ -141,7 +151,14 @@ const Index = () => {
     );
   }
 
-  return <OnboardingForm onComplete={handleOnboardingComplete} />;
+  return (
+    <AuthModal 
+      isOpen={true}
+      onClose={() => {}}
+      onComplete={handleAuthComplete}
+      defaultTab="signup"
+    />
+  );
 };
 
 export default Index;
